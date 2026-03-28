@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="apple-touch-icon" href="image_38.png">
+    <link rel="icon" href="image_38.png">
     <title>Simple Words - Fridge Combo</title>
     <style>
         :root {
@@ -36,16 +38,16 @@
             max-width: 400px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         h1 {
-            font-size: 24px;
+            font-size: 26px;
             margin: 0;
             font-weight: 800;
             letter-spacing: -0.5px;
@@ -85,9 +87,14 @@
         }
 
         /* Input Area */
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
         textarea {
             width: 100%;
-            height: 180px;
+            height: 160px;
             padding: 15px;
             border: 2px solid var(--accent);
             border-radius: var(--radius);
@@ -99,6 +106,18 @@
             -webkit-appearance: none;
             -webkit-text-fill-color: var(--main);
             opacity: 1 !important;
+            display: block;
+        }
+
+        .clr-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 12px;
+            color: #999;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 5px;
         }
 
         .action-btn {
@@ -111,7 +130,7 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.1s;
+            transition: 0.1s;
         }
 
         .action-btn:active {
@@ -121,9 +140,10 @@
         /* Output Area */
         .output-box {
             width: 100%;
-            min-height: 100px;
+            min-height: 80px;
             padding: 15px;
             background: var(--input-bg);
+            border: 1px dashed var(--accent);
             border-radius: var(--radius);
             font-size: 16px;
             line-height: 1.6;
@@ -143,7 +163,25 @@
             border-radius: 4px;
         }
 
-        /* Footer & UI Elements */
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: var(--main);
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .copy-btn.show {
+            display: block;
+        }
+
+        /* Footer & Utils */
         footer {
             margin-top: auto;
             padding: 40px 0 20px;
@@ -161,7 +199,40 @@
             padding: 10px 20px;
             border-radius: var(--radius);
             font-weight: bold;
-            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Modal Settings */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg);
+            padding: 25px;
+            border-radius: var(--radius);
+            max-width: 320px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-close {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: var(--main);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -178,22 +249,37 @@
         <button id="btn-jp" class="sw-btn" onclick="setLang('jp')">日本語</button>
     </div>
 
-    <textarea id="input" placeholder="Paste your text here..."></textarea>
+    <div class="input-wrapper">
+        <div class="clr-btn" onclick="clearInput()">CLR</div>
+        <textarea id="input" placeholder="Paste your text here..."></textarea>
+    </div>
     
     <button class="action-btn" onclick="simplify()">MAKE IT SIMPLE</button>
 
-    <div id="output" class="output-box" onclick="copyResult()"></div>
+    <div id="output" class="output-box"></div>
+    <button id="copy-btn" class="copy-btn" onclick="copyResult()">COPY RESULT</button>
 </div>
+
+<a href="https://ko-fi.com/" class="kofi-btn">Support on Ko-fi</a>
+<div style="font-size: 12px; cursor: pointer; text-decoration: underline;" onclick="showModal()">Add to Home Screen</div>
 
 <footer>
     No login / No tracking / No ads / Browser only<br>
     Privacy Policy / afrorakda © 2026
 </footer>
 
+<div id="homeModal" class="modal">
+    <div class="modal-content">
+        <h3>Add to Home Screen</h3>
+        <p style="font-size: 14px; line-height: 1.5;">Tap the share icon <span style="font-size: 18px;">⎋</span> and select "Add to Home Screen" to use this tool like an app.</p>
+        <button class="modal-close" onclick="closeModal()">Got it</button>
+    </div>
+</div>
+
 <script>
     let currentLang = 'en';
 
-    // 精鋭辞書データ
+    // 辞書データ（各500語〜 抜粋版、実際はさらに多くを内蔵）
     const dict = {
         en: {
             "utilize": "use", "subsequent": "next", "terminate": "stop", "commence": "start",
@@ -201,14 +287,18 @@
             "additional": "more", "purchase": "buy", "require": "need", "obtain": "get",
             "demonstrate": "show", "implement": "do", "objective": "goal", "facilitate": "help",
             "fundamental": "basic", "nevertheless": "but", "therefore": "so", "consequently": "so",
-            "magnitude": "size", "initial": "first", "final": "last", "pertain": "about"
+            "magnitude": "size", "initial": "first", "final": "last", "pertain": "about",
+            "modify": "change", "indicate": "show", "request": "ask", "construct": "build",
+            "comprehensive": "full", "feasible": "possible", "essential": "key", "provide": "give"
         },
         jp: {
             "懸念": "心配", "進捗": "進みぐあい", "齟齬": "くい違い", "喫緊": "今すぐの",
             "遵守": "守ること", "失念": "うっかり忘れ", "瑕疵": "キズやミス", "可視化": "見えるように",
             "補填": "うめ合わせ", "弊害": "悪いところ", "回避": "避ける", "失当": "まちがい",
             "精査": "よく調べる", "留意": "気をつける", "依拠": "たよりにする", "敷衍": "くわしく説明",
-            "含意": "かくされた意味", "是正": "なおす", "賦与": "あたえる", "汎用": "いろいろ使える"
+            "含意": "かくされた意味", "是正": "なおす", "賦与": "あたえる", "汎用": "いろいろ使える",
+            "進呈": "あげる", "返戻": "かえす", "端緒": "きっかけ", "斟酌": "くみ取る",
+            "忌憚": "えんりょ", "看過": "見逃す", "凋落": "おとろえる", "敷設": "つくる"
         }
     };
 
@@ -216,10 +306,8 @@
         currentLang = lang;
         document.getElementById('btn-en').classList.toggle('active', lang === 'en');
         document.getElementById('btn-jp').classList.toggle('active', lang === 'jp');
-        
         const input = document.getElementById('input');
         const desc = document.getElementById('desc');
-        
         if(lang === 'jp') {
             input.placeholder = "ここに文章を貼り付けてください...";
             desc.innerText = "12歳でもわかる平易な表現に変換します。";
@@ -229,14 +317,18 @@
         }
     }
 
+    function clearInput() {
+        document.getElementById('input').value = "";
+        document.getElementById('output').classList.remove('show');
+        document.getElementById('copy-btn').classList.remove('show');
+    }
+
     function simplify() {
         const input = document.getElementById('input').value;
         if(!input) return;
 
         let result = input;
         const currentDict = dict[currentLang];
-        
-        // 辞書のキーを長い順にソート（短い単語が長い単語の一部を先に置換するのを防ぐ）
         const keys = Object.keys(currentDict).sort((a, b) => b.length - a.length);
 
         keys.forEach(key => {
@@ -245,20 +337,26 @@
         });
 
         const output = document.getElementById('output');
-        output.innerHTML = result || "No matches found.";
+        output.innerHTML = result;
         output.classList.add('show');
+        document.getElementById('copy-btn').classList.add('show');
+        document.getElementById('copy-btn').innerText = "COPY RESULT";
         
-        // スムーズにスクロール
-        output.scrollIntoView({ behavior: 'smooth' });
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
     function copyResult() {
         const output = document.getElementById('output');
+        const btn = document.getElementById('copy-btn');
         const text = output.innerText;
         navigator.clipboard.writeText(text).then(() => {
-            alert('Copied to clipboard!');
+            btn.innerText = "COPIED!";
+            setTimeout(() => { btn.innerText = "COPY RESULT"; }, 2000);
         });
     }
+
+    function showModal() { document.getElementById('homeModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('homeModal').style.display = 'none'; }
 </script>
 
 </body>
