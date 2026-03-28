@@ -8,7 +8,8 @@
     <title>Simple Words - Fridge Combo</title>
     <style>
         :root {
-            --bg: #fff;
+            --bg: #f5f5f5; /* ぬぺぇ感を消すためのベースグレー */
+            --container-bg: #fff;
             --main: #333;
             --accent: #eee;
             --input-bg: #fafafa;
@@ -33,14 +34,18 @@
         .container {
             width: 100%;
             max-width: 400px;
+            background-color: var(--container-bg);
+            padding: 25px; /* コンテナ内で余白を持たせる */
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); /* 静かに浮かせる */
             display: flex;
             flex-direction: column;
-            gap: 20px; /* 余白を確保 */
+            gap: 15px; /* 要素間隔をタイトに */
         }
 
         header { text-align: center; margin-bottom: 5px; }
-        h1 { font-size: 26px; margin: 0; font-weight: 800; letter-spacing: -0.5px; }
-        .description { font-size: 13px; opacity: 0.7; margin-top: 5px; }
+        h1 { font-size: 24px; margin: 0; font-weight: 800; letter-spacing: -0.5px; }
+        .description { font-size: 13px; opacity: 0.7; margin-top: 5px; line-height: 1.4; }
 
         /* Language Switcher */
         .switcher {
@@ -49,45 +54,46 @@
             padding: 4px;
             border-radius: var(--radius);
             gap: 4px;
+            margin-bottom: 5px;
         }
 
         .sw-btn {
             flex: 1;
             border: none;
             background: none;
-            padding: 12px;
+            padding: 10px;
             font-size: 14px;
             font-weight: bold;
             border-radius: 12px;
             cursor: pointer;
             color: var(--main);
+            transition: 0.2s;
         }
 
         .sw-btn.active {
-            background: var(--bg);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: var(--container-bg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         /* Input Area */
         .input-header {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: -15px; /* CLRを窓のすぐ上に配置 */
-            padding-right: 5px;
+            margin-bottom: -10px;
             z-index: 1;
         }
 
         .clr-btn {
             font-size: 12px;
-            color: #999;
+            color: #aaa;
             cursor: pointer;
             font-weight: bold;
-            padding: 10px;
+            padding: 5px 10px;
         }
 
         textarea {
             width: 100%;
-            height: 160px;
+            height: 150px;
             padding: 15px;
             border: 2px solid var(--accent);
             border-radius: var(--radius);
@@ -103,15 +109,17 @@
 
         .action-btn {
             width: 100%;
-            padding: 20px;
+            padding: 18px;
             background-color: var(--main);
-            color: var(--bg);
+            color: var(--container-bg);
             border: none;
             border-radius: var(--radius);
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.1s;
         }
+        .action-btn:active { transform: scale(0.98); }
 
         /* Output Area */
         .output-box {
@@ -125,14 +133,15 @@
             line-height: 1.6;
             white-space: pre-wrap;
             display: none;
+            margin-top: 5px;
         }
 
         .output-box.show { display: block; }
-        mark { background-color: var(--highlight); color: var(--main); border-radius: 4px; }
+        mark { background-color: var(--highlight); color: var(--main); border-radius: 4px; padding: 0 2px; }
 
         .copy-btn {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             background: var(--accent);
             color: var(--main);
             border: none;
@@ -141,25 +150,30 @@
             font-weight: bold;
             cursor: pointer;
             display: none;
-            margin-top: 10px;
+            transition: 0.1s;
         }
         .copy-btn.show { display: block; }
+        .copy-btn:active { transform: scale(0.98); }
 
         /* UI Parts */
         .support-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            margin-top: 30px;
+            gap: 12px;
+            margin-top: 25px;
+            border-top: 1px solid var(--accent); /* 区切りを入れる */
+            padding-top: 20px;
         }
 
         .kofi-btn {
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             background: var(--main);
             color: #fff;
             text-decoration: none;
-            padding: 12px 25px;
+            padding: 12px 22px;
             border-radius: var(--radius);
             font-weight: bold;
             font-size: 14px;
@@ -170,18 +184,19 @@
             color: var(--main);
             text-decoration: underline;
             cursor: pointer;
+            opacity: 0.8;
         }
 
         footer {
-            margin-top: 40px;
-            padding-bottom: 20px;
+            margin-top: auto;
+            padding: 40px 0 20px;
             text-align: center;
             font-size: 11px;
             line-height: 1.8;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
-        /* Modal (画像13準拠) */
+        /* Modal (Got it削除版) */
         .modal {
             display: none;
             position: fixed;
@@ -192,7 +207,7 @@
         }
 
         .modal-content {
-            background: var(--bg);
+            background: var(--container-bg);
             padding: 30px;
             border-radius: var(--radius);
             max-width: 340px;
@@ -204,21 +219,19 @@
         .modal-close-x {
             position: absolute;
             top: 15px; right: 15px;
-            color: #ccc; font-size: 20px; cursor: pointer;
+            color: #ccc; font-size: 22px; cursor: pointer;
+            padding: 5px;
         }
 
         .modal-title {
             display: flex; align-items: center; gap: 10px;
-            font-size: 20px; font-weight: bold; margin-bottom: 20px;
+            font-size: 20px; font-weight: bold; margin-bottom: 25px;
+            color: var(--main);
         }
 
-        .modal-item { margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
-        .modal-item b { display: block; margin-bottom: 2px; }
+        .modal-item { margin-bottom: 18px; font-size: 14px; line-height: 1.6; color: #555; }
+        .modal-item b { display: block; margin-bottom: 3px; color: var(--main); }
 
-        .btn-gotit {
-            width: 100%; padding: 12px; background: var(--main); color: #fff;
-            border: none; border-radius: var(--radius); font-weight: bold; margin-top: 10px;
-        }
     </style>
 </head>
 <body>
@@ -245,7 +258,7 @@
     <button id="copy-btn" class="copy-btn" onclick="copyResult()">COPY RESULT</button>
 
     <div class="support-area">
-        <a href="https://ko-fi.com/afrorakda" class="kofi-btn">Buy me a Coffee</a>
+        <a href="https://ko-fi.com/afrorakda" class="kofi-btn">☕️ Buy me a Coffee</a>
         <div class="add-home-link" onclick="showModal()">Add to Home Screen</div>
     </div>
 </div>
@@ -260,7 +273,7 @@
         <div class="modal-close-x" onclick="closeModal()">×</div>
         <div class="modal-title"><span>📱</span> Install</div>
         <div class="modal-item">
-            Add to your home screen.
+            Add this tool to your home screen for easy access.
         </div>
         <div class="modal-item">
             <b>🍏 iPhone (Safari):</b>
@@ -270,7 +283,6 @@
             <b>🤖 Android (Chrome):</b>
             Tap Menu (⋮), then Add to Home Screen.
         </div>
-        <button class="btn-gotit" onclick="closeModal()">Got it</button>
     </div>
 </div>
 
@@ -288,7 +300,8 @@
         jp: {
             "懸念": "心配", "進捗": "進みぐあい", "齟齬": "くい違い", "喫緊": "今すぐの",
             "遵守": "守ること", "失念": "うっかり忘れ", "瑕疵": "キズやミス", "可視化": "見えるように",
-            "補填": "うめ合わせ", "是正": "なおす", "賦与": "あたえる", "汎用": "いろいろ使える"
+            "補填": "うめ合わせ", "是正": "なおす", "賦与": "あたえる", "汎用": "いろいろ使える",
+            "厳格": "きびしい" // 辞書に追加
         }
     };
 
@@ -328,6 +341,9 @@
         output.classList.add('show');
         document.getElementById('copy-btn').classList.add('show');
         document.getElementById('copy-btn').innerText = "COPY RESULT";
+        
+        // 結果エリアへスムーズスクロール
+        output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function copyResult() {
