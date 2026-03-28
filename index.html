@@ -8,7 +8,7 @@
     <title>Simple Words - Fridge Combo</title>
     <style>
         :root {
-            --bg: #f5f5f5; /* ぬぺぇ感を消すためのベースグレー */
+            --bg: #f5f5f5;
             --container-bg: #fff;
             --main: #333;
             --accent: #eee;
@@ -35,12 +35,12 @@
             width: 100%;
             max-width: 400px;
             background-color: var(--container-bg);
-            padding: 25px; /* コンテナ内で余白を持たせる */
+            padding: 25px;
             border-radius: var(--radius);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); /* 静かに浮かせる */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
-            gap: 15px; /* 要素間隔をタイトに */
+            gap: 15px;
         }
 
         header { text-align: center; margin-bottom: 5px; }
@@ -121,7 +121,7 @@
         }
         .action-btn:active { transform: scale(0.98); }
 
-        /* Output Area */
+        /* Output Area (Editable) */
         .output-box {
             width: 100%;
             min-height: 80px;
@@ -134,6 +134,7 @@
             white-space: pre-wrap;
             display: none;
             margin-top: 5px;
+            outline: none; /* 編集時の枠線を消す */
         }
 
         .output-box.show { display: block; }
@@ -153,7 +154,6 @@
             transition: 0.1s;
         }
         .copy-btn.show { display: block; }
-        .copy-btn:active { transform: scale(0.98); }
 
         /* UI Parts */
         .support-area {
@@ -162,7 +162,7 @@
             align-items: center;
             gap: 12px;
             margin-top: 25px;
-            border-top: 1px solid var(--accent); /* 区切りを入れる */
+            border-top: 1px solid var(--accent);
             padding-top: 20px;
         }
 
@@ -196,7 +196,7 @@
             opacity: 0.5;
         }
 
-        /* Modal (Got it削除版) */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -254,7 +254,7 @@
     
     <button class="action-btn" onclick="simplify()">MAKE IT SIMPLE</button>
 
-    <div id="output" class="output-box"></div>
+    <div id="output" class="output-box" contenteditable="true"></div>
     <button id="copy-btn" class="copy-btn" onclick="copyResult()">COPY RESULT</button>
 
     <div class="support-area">
@@ -301,7 +301,7 @@
             "懸念": "心配", "進捗": "進みぐあい", "齟齬": "くい違い", "喫緊": "今すぐの",
             "遵守": "守ること", "失念": "うっかり忘れ", "瑕疵": "キズやミス", "可視化": "見えるように",
             "補填": "うめ合わせ", "是正": "なおす", "賦与": "あたえる", "汎用": "いろいろ使える",
-            "厳格": "きびしい" // 辞書に追加
+            "厳格": "きびしい"
         }
     };
 
@@ -342,14 +342,15 @@
         document.getElementById('copy-btn').classList.add('show');
         document.getElementById('copy-btn').innerText = "COPY RESULT";
         
-        // 結果エリアへスムーズスクロール
         output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function copyResult() {
         const output = document.getElementById('output');
         const btn = document.getElementById('copy-btn');
-        navigator.clipboard.writeText(output.innerText).then(() => {
+        // HTMLタグを除外して純粋なテキストのみコピー
+        const text = output.innerText; 
+        navigator.clipboard.writeText(text).then(() => {
             btn.innerText = "COPIED!";
             setTimeout(() => { btn.innerText = "COPY RESULT"; }, 2000);
         });
