@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Simple Words - Fridge Combo</title>
+    <title>Simple Words</title>
     
     <link rel="icon" href="image_38.png">
     <link rel="apple-touch-icon" href="image_38.png">
@@ -288,37 +288,29 @@
         
         const placeholders = [];
         
-        // 1. 長いフレーズから順にプレースホルダーへ退避（二重置換防止 & 大文字無視）
         keys.forEach((key, idx) => {
             const regex = new RegExp(key, 'gi');
             result = result.replace(regex, (matched) => {
                 const ph = `__PH${idx}__`;
                 placeholders[idx] = {
-                    orig: matched, // 元の単語（大文字小文字維持用）
-                    simple: currentDict[key] // 置換後の単語
+                    orig: matched,
+                    simple: currentDict[key]
                 };
                 return ph;
             });
         });
 
-        // 2. プレースホルダーを実際のHTML（markタグ）に書き戻す
-        placeholders.forEach((val, idx) => {
-            if (!val) return;
-            const phRegex = new RegExp(`__PH${idx}__`, 'g');
-            result = result.replace(phRegex, `<mark data-orig="${val.orig}" onclick="toggleTerm(this)">${val.simple}</mark>`);
-        });
+        for(let i=0; i < keys.length; i++) {
+            if (!placeholders[i]) continue;
+            const phRegex = new RegExp(`__PH${i}__`, 'g');
+            result = result.replace(phRegex, `<mark data-orig="${placeholders[i].orig}" onclick="toggleTerm(this)">${placeholders[i].simple}</mark>`);
+        }
 
         const output = document.getElementById('output');
         output.innerHTML = result;
         output.classList.add('show');
         
-        // 統計計算
-        const beforeLen = input.length;
-        const afterLen = output.innerText.length;
-        const diff = afterLen - beforeLen;
-        const statBar = document.getElementById('statBar');
-        statBar.innerText = `${beforeLen} → ${afterLen} chars ( ${diff > 0 ? '+' : ''}${diff} )`;
-        statBar.classList.add('show');
+        updateStats();
 
         document.getElementById('copy-btn').classList.add('show');
         document.getElementById('copy-btn').innerText = "COPY RESULT";
@@ -332,12 +324,16 @@
         el.innerText = origText;
         el.setAttribute('data-orig', currentText);
         el.style.backgroundColor = el.style.backgroundColor === 'rgb(238, 238, 238)' ? '' : '#eee';
-        
-        // 統計再計算
+        updateStats();
+    }
+
+    function updateStats() {
         const beforeLen = document.getElementById('input').value.length;
         const afterLen = document.getElementById('output').innerText.length;
         const diff = afterLen - beforeLen;
-        document.getElementById('statBar').innerText = `${beforeLen} → ${afterLen} chars ( ${diff > 0 ? '+' : ''}${diff} )`;
+        const statBar = document.getElementById('statBar');
+        statBar.innerText = `${beforeLen} → ${afterLen} chars ( ${diff > 0 ? '+' : ''}${diff} )`;
+        statBar.classList.add('show');
     }
 
     function copyResult() {
