@@ -14,12 +14,13 @@
             --bg: #fff;
             --accent: #eee;
             --input-bg: #fafafa;
-            --highlight: #e3f2fd; /* 道具感のある淡いブルー */
+            --highlight: #e3f2fd;
             --radius: 15px;
         }
 
-        /* 憲法遵守: 角丸15px / iOS Safari対策 */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        /* 憲法遵守: 角丸15px / iOS Safari対策 / 全域選択禁止 */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+        textarea { -webkit-user-select: text; user-select: text; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -60,7 +61,6 @@
 
         .subtitle { font-size: 0.9rem; color: #666; font-weight: 700; text-align: left; }
 
-        /* Language Switcher */
         .switcher {
             display: flex;
             background: var(--input-bg);
@@ -82,13 +82,8 @@
             color: #888;
         }
 
-        .sw-btn.active {
-            background: #fff;
-            color: var(--main);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+        .sw-btn.active { background: #fff; color: var(--main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        /* Input Area */
         .input-card {
             background: var(--input-bg);
             padding: 18px;
@@ -100,21 +95,11 @@
         .input-wrapper { position: relative; }
 
         textarea {
-            width: 100%;
-            height: 150px;
-            padding: 15px;
-            padding-right: 40px;
-            border: 2px solid var(--accent);
-            border-radius: var(--radius);
-            background: #fff;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--main) !important;
-            outline: none;
-            resize: none;
-            -webkit-appearance: none;
-            -webkit-text-fill-color: var(--main) !important;
-            opacity: 1 !important;
+            width: 100%; height: 150px; padding: 15px; padding-right: 40px;
+            border: 2px solid var(--accent); border-radius: var(--radius);
+            background: #fff; font-size: 1rem; font-weight: 600;
+            color: var(--main) !important; outline: none; resize: none;
+            -webkit-appearance: none; -webkit-text-fill-color: var(--main) !important; opacity: 1 !important;
         }
         textarea::placeholder { color: #bbb !important; -webkit-text-fill-color: #bbb !important; opacity: 1 !important; }
 
@@ -126,52 +111,41 @@
         }
 
         .action-btn {
-            width: 100%;
-            padding: 18px;
-            background: var(--main);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 800;
-            cursor: pointer;
-            -webkit-text-fill-color: #fff;
+            width: 100%; padding: 18px; background: var(--main); color: #fff;
+            border: none; border-radius: var(--radius); font-size: 1rem;
+            font-weight: 800; cursor: pointer; -webkit-text-fill-color: #fff;
         }
         .action-btn:active { transform: scale(0.98); }
 
-        /* Output Area */
         .output-box {
-            width: 100%;
-            min-height: 80px;
-            padding: 18px;
-            background: var(--input-bg);
-            border: 2px solid var(--accent);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            display: none;
-            font-weight: 600;
-            color: var(--main);
+            width: 100%; min-height: 80px; padding: 18px; background: var(--input-bg);
+            border: 2px solid var(--accent); border-radius: var(--radius);
+            font-size: 1rem; line-height: 1.6; white-space: pre-wrap;
+            display: none; font-weight: 600; color: var(--main);
         }
         .output-box.show { display: block; }
-        mark { background-color: var(--highlight); color: #0277bd; border-radius: 4px; padding: 0 2px; }
+        
+        /* 置換箇所: タップで元に戻せるトグル */
+        mark { 
+            background-color: var(--highlight); color: #0277bd; 
+            border-radius: 4px; padding: 0 2px; cursor: pointer;
+            transition: 0.1s;
+        }
+        mark:active { opacity: 0.6; }
+
+        .stat-bar {
+            display: none; justify-content: flex-end; font-size: 0.75rem;
+            font-weight: 800; color: #999; margin-top: -10px; padding: 0 5px;
+        }
+        .stat-bar.show { display: flex; }
 
         .copy-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--accent);
-            color: var(--main);
-            border: none;
-            border-radius: var(--radius);
-            font-size: 0.9rem;
-            font-weight: 800;
-            cursor: pointer;
-            display: none;
+            width: 100%; padding: 15px; background: var(--accent); color: var(--main);
+            border: none; border-radius: var(--radius); font-size: 0.9rem;
+            font-weight: 800; cursor: pointer; display: none;
         }
         .copy-btn.show { display: block; }
 
-        /* Footer & Buttons */
         .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         .kofi-btn {
             background: var(--main); color: #fff; text-decoration: none;
@@ -186,7 +160,6 @@
         footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
         footer a { color: inherit; text-decoration: underline; }
 
-        /* Modal */
         #modal {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
             align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px);
@@ -222,6 +195,7 @@
     <button class="action-btn" onclick="simplify()">MAKE IT SIMPLE</button>
 
     <div id="output" class="output-box"></div>
+    <div id="statBar" class="stat-bar"></div>
     <button id="copy-btn" class="copy-btn" onclick="copyResult()">COPY RESULT</button>
 
     <div class="footer-btns">
@@ -270,8 +244,7 @@
 
     function setLang(lang) {
         currentLang = lang;
-        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-        document.getElementById('btn-jp').classList.toggle('active', lang === 'jp');
+        document.querySelectorAll('.sw-btn').forEach(b => b.classList.toggle('active', b.id === `btn-${lang}`));
         const input = document.getElementById('input');
         const desc = document.getElementById('desc');
         if(lang === 'jp') {
@@ -284,13 +257,13 @@
     }
 
     function toggleClr() {
-        const clrBtn = document.getElementById('clrBtn');
-        clrBtn.style.display = document.getElementById('input').value.length > 0 ? 'flex' : 'none';
+        document.getElementById('clrBtn').style.display = document.getElementById('input').value.length > 0 ? 'flex' : 'none';
     }
 
     function clearInput() {
         document.getElementById('input').value = "";
         document.getElementById('output').classList.remove('show');
+        document.getElementById('statBar').classList.remove('show');
         document.getElementById('copy-btn').classList.remove('show');
         toggleClr();
         document.getElementById('input').focus();
@@ -301,28 +274,45 @@
         if(!input) return;
         let result = input;
         const currentDict = dict[currentLang];
-        // 熟語・フレーズの長い順にソートして置換（部分一致回避）
         const keys = Object.keys(currentDict).sort((a, b) => b.length - a.length);
         
         keys.forEach(key => {
             const regex = new RegExp(key, 'g');
-            result = result.replace(regex, `<mark>${currentDict[key]}</mark>`);
+            // markタグに元の単語をdata属性で保持させる
+            result = result.replace(regex, `<mark data-orig="${key}" onclick="toggleTerm(this)">${currentDict[key]}</mark>`);
         });
 
         const output = document.getElementById('output');
         output.innerHTML = result;
         output.classList.add('show');
+        
+        // 文字数統計
+        const beforeLen = input.length;
+        const afterLen = output.innerText.length;
+        const diff = afterLen - beforeLen;
+        const statBar = document.getElementById('statBar');
+        statBar.innerText = `${beforeLen} → ${afterLen} chars ( ${diff > 0 ? '+' : ''}${diff} )`;
+        statBar.classList.add('show');
+
         document.getElementById('copy-btn').classList.add('show');
         document.getElementById('copy-btn').innerText = "COPY RESULT";
         
-        window.scrollTo({ top: output.offsetTop, behavior: 'smooth' });
+        window.scrollTo({ top: output.offsetTop - 20, behavior: 'smooth' });
+    }
+
+    function toggleTerm(el) {
+        const currentText = el.innerText;
+        const origText = el.getAttribute('data-orig');
+        el.innerText = origText;
+        el.setAttribute('data-orig', currentText);
+        // 背景色をトグル（元に戻した時はグレーに）
+        el.style.backgroundColor = el.style.backgroundColor === 'rgb(238, 238, 238)' ? '' : '#eee';
     }
 
     function copyResult() {
         const output = document.getElementById('output');
         const btn = document.getElementById('copy-btn');
-        const text = output.innerText; 
-        navigator.clipboard.writeText(text).then(() => {
+        navigator.clipboard.writeText(output.innerText).then(() => {
             btn.innerText = "COPIED!";
             setTimeout(() => { btn.innerText = "COPY RESULT"; }, 1500);
         });
