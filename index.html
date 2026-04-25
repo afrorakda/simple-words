@@ -14,11 +14,11 @@
             --bg: #fff;
             --accent: #eee;
             --input-bg: #fafafa;
-            --highlight: #fff3cd;
+            --highlight: #e3f2fd; /* 道具感のある淡いブルー */
             --radius: 15px;
         }
 
-        /* 憲法: 全要素 15px角丸 / iOS対策 / リセット */
+        /* 憲法遵守: 角丸15px / iOS Safari対策 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
         body {
@@ -151,11 +151,11 @@
             line-height: 1.6;
             white-space: pre-wrap;
             display: none;
-            outline: none;
             font-weight: 600;
+            color: var(--main);
         }
         .output-box.show { display: block; }
-        mark { background-color: var(--highlight); color: var(--main); border-radius: 4px; padding: 0 2px; }
+        mark { background-color: var(--highlight); color: #0277bd; border-radius: 4px; padding: 0 2px; }
 
         .copy-btn {
             width: 100%;
@@ -221,7 +221,7 @@
     
     <button class="action-btn" onclick="simplify()">MAKE IT SIMPLE</button>
 
-    <div id="output" class="output-box" contenteditable="true"></div>
+    <div id="output" class="output-box"></div>
     <button id="copy-btn" class="copy-btn" onclick="copyResult()">COPY RESULT</button>
 
     <div class="footer-btns">
@@ -255,13 +255,16 @@
             "optimal": "best", "approximately": "about", "assistance": "help", "sufficient": "enough",
             "additional": "more", "purchase": "buy", "require": "need", "obtain": "get",
             "demonstrate": "show", "implement": "do", "objective": "goal", "facilitate": "help",
-            "fundamental": "basic", "nevertheless": "but", "therefore": "so", "magnitude": "size"
+            "fundamental": "basic", "nevertheless": "but", "therefore": "so", "magnitude": "size",
+            "in accordance with": "following", "due to the fact that": "because", "prior to": "before",
+            "with regard to": "about"
         },
         jp: {
-            "懸念": "心配", "進捗": "進みぐあい", "齟齬": "くい違い", "喫緊": "今すぐの",
-            "遵守": "守ること", "失念": "うっかり忘れ", "瑕疵": "キズやミス", "可視化": "見えるように",
-            "補填": "うめ合わせ", "是正": "なおす", "賦与": "あたえる", "汎用": "いろいろ使える",
-            "厳格": "きびしい"
+            "可及的速やかに": "なるべく早く", "ご査収ください": "ご確認ください", "ご自愛ください": "お体に気をつけて",
+            "相違ありません": "間違いありません", "遵守事項": "守るべきルール", "喫緊の課題": "今すぐやるべきこと",
+            "進捗": "進みぐあい", "齟齬": "くい違い", "遵守": "守ること", "失念": "うっかり忘れ",
+            "瑕疵": "キズやミス", "可視化": "見えるように", "補填": "うめ合わせ", "是正": "なおす",
+            "賦与": "あたえる", "汎用": "いろいろ使える", "厳格": "きびしい", "懸念": "心配"
         }
     };
 
@@ -298,18 +301,21 @@
         if(!input) return;
         let result = input;
         const currentDict = dict[currentLang];
+        // 熟語・フレーズの長い順にソートして置換（部分一致回避）
         const keys = Object.keys(currentDict).sort((a, b) => b.length - a.length);
+        
         keys.forEach(key => {
             const regex = new RegExp(key, 'g');
             result = result.replace(regex, `<mark>${currentDict[key]}</mark>`);
         });
+
         const output = document.getElementById('output');
         output.innerHTML = result;
         output.classList.add('show');
         document.getElementById('copy-btn').classList.add('show');
         document.getElementById('copy-btn').innerText = "COPY RESULT";
         
-        output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        window.scrollTo({ top: output.offsetTop, behavior: 'smooth' });
     }
 
     function copyResult() {
@@ -318,7 +324,7 @@
         const text = output.innerText; 
         navigator.clipboard.writeText(text).then(() => {
             btn.innerText = "COPIED!";
-            setTimeout(() => { btn.innerText = "COPY RESULT"; }, 2000);
+            setTimeout(() => { btn.innerText = "COPY RESULT"; }, 1500);
         });
     }
 
