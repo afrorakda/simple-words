@@ -18,8 +18,10 @@
             --radius: 15px;
         }
 
-        /* 憲法遵守: 角丸15px / iOS Safari対策 / 全域選択禁止 */
+        /* 憲法: 15px角丸 / iOS対策 / 全域選択禁止 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+        
+        /* 入力欄のみテキスト操作許可 */
         textarea { -webkit-user-select: text; user-select: text; }
 
         body {
@@ -158,7 +160,7 @@
         footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
         footer a { color: inherit; text-decoration: underline; }
 
-        #homeModal {
+        #modal {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
             align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px);
         }
@@ -166,7 +168,7 @@
             background: #fff; width: 90%; max-width: 340px; padding: 35px;
             border-radius: var(--radius); text-align: left; position: relative;
         }
-        .modal-close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -207,11 +209,11 @@
     </footer>
 </div>
 
-<div id="homeModal" onclick="closeModal()">
+<div id="modal" onclick="hideModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="modal-close-x" onclick="closeModal()">×</span>
-        <h3 style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
-        <p style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
+        <span class="close-x" onclick="hideModal()">×</span>
+        <h3 id="modal-title" style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
+        <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
             🍏 <strong>iPhone:</strong><br>Share > Add to Home Screen<br><br>
             🤖 <strong>Android:</strong><br>Menu (⋮) > Add to Home Screen
         </p>
@@ -221,6 +223,7 @@
 <script>
     let currentLang = 'en';
 
+    // 外部の平易表現リファレンスに基づいた辞書
     const dict = {
         en: {
             "in accordance with": "following", "due to the fact that": "because", "prior to": "before", "with regard to": "about",
@@ -266,8 +269,7 @@
     }
 
     function toggleClr() {
-        const val = document.getElementById('input').value;
-        document.getElementById('clrBtn').style.display = val.length > 0 ? 'flex' : 'none';
+        document.getElementById('clrBtn').style.display = document.getElementById('input').value.length > 0 ? 'flex' : 'none';
     }
 
     function clearInput() {
@@ -286,13 +288,17 @@
         let result = input;
         const currentDict = dict[currentLang];
         const keys = Object.keys(currentDict).sort((a, b) => b.length - a.length);
+        
         const placeholders = [];
         
         keys.forEach((key, idx) => {
             const regex = new RegExp(key, 'gi');
             result = result.replace(regex, (matched) => {
                 const ph = `__PH${idx}__`;
-                placeholders[idx] = { orig: matched, simple: currentDict[key] };
+                placeholders[idx] = {
+                    orig: matched,
+                    simple: currentDict[key]
+                };
                 return ph;
             });
         });
@@ -306,10 +312,12 @@
         const output = document.getElementById('output');
         output.innerHTML = result;
         output.classList.add('show');
+        
         updateStats();
 
         document.getElementById('copy-btn').classList.add('show');
         document.getElementById('copy-btn').innerText = "COPY RESULT";
+        
         window.scrollTo({ top: output.offsetTop - 20, behavior: 'smooth' });
     }
 
@@ -340,9 +348,10 @@
         });
     }
 
-    function showModal() { document.getElementById('homeModal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('homeModal').style.display = 'none'; }
+    function showModal() { document.getElementById('modal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('modal').style.display = 'none'; }
 
+    // 鉄壁ロジック: 削除厳禁・聖域
     async function loadFooter() {
         try {
             const response = await fetch('footer.json');
@@ -352,9 +361,12 @@
                 if (data.privacyLink) document.getElementById('privacy-link').href = data.privacyLink;
                 if (data.copyright) document.getElementById('copyright').innerText = data.copyright;
                 if (data.kofiText) document.getElementById('kofi-link').innerText = data.kofiText;
+                if (data.modalTitle) document.getElementById('modal-title').innerText = data.modalTitle;
+                if (data.modalBody) document.getElementById('modal-body').innerHTML = data.modalBody;
             }
-        } catch (e) { console.log("Using internal footer logic."); }
+        } catch (e) { console.log("Static footer active."); }
     }
+
     loadFooter();
 </script>
 
