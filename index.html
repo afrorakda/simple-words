@@ -18,6 +18,7 @@
             --radius: 15px;
         }
 
+        /* 憲法遵守: 角丸15px / iOS Safari対策 / 全域選択禁止 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
         textarea { -webkit-user-select: text; user-select: text; }
 
@@ -157,7 +158,7 @@
         footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
         footer a { color: inherit; text-decoration: underline; }
 
-        #modal {
+        #homeModal {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
             align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px);
         }
@@ -165,7 +166,7 @@
             background: #fff; width: 90%; max-width: 340px; padding: 35px;
             border-radius: var(--radius); text-align: left; position: relative;
         }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
+        .modal-close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -196,19 +197,19 @@
     <button id="copy-btn" class="copy-btn" onclick="copyResult()">COPY RESULT</button>
 
     <div class="footer-btns">
-        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
+        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
         <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
     </div>
 
     <footer>
-        No login / No tracking / No ads / Browser only<br>
-        <a href="https://afrorakda.com/privacy/">Privacy Policy</a> / afrorakda © 2026
+        <span id="footer-text">No login / No tracking / No ads / Browser only</span><br>
+        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span>
     </footer>
 </div>
 
-<div id="modal" onclick="hideModal()">
+<div id="homeModal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-x" onclick="hideModal()">×</span>
+        <span class="modal-close-x" onclick="closeModal()">×</span>
         <h3 style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
         <p style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
             🍏 <strong>iPhone:</strong><br>Share > Add to Home Screen<br><br>
@@ -265,7 +266,8 @@
     }
 
     function toggleClr() {
-        document.getElementById('clrBtn').style.display = document.getElementById('input').value.length > 0 ? 'flex' : 'none';
+        const val = document.getElementById('input').value;
+        document.getElementById('clrBtn').style.display = val.length > 0 ? 'flex' : 'none';
     }
 
     function clearInput() {
@@ -284,17 +286,13 @@
         let result = input;
         const currentDict = dict[currentLang];
         const keys = Object.keys(currentDict).sort((a, b) => b.length - a.length);
-        
         const placeholders = [];
         
         keys.forEach((key, idx) => {
             const regex = new RegExp(key, 'gi');
             result = result.replace(regex, (matched) => {
                 const ph = `__PH${idx}__`;
-                placeholders[idx] = {
-                    orig: matched,
-                    simple: currentDict[key]
-                };
+                placeholders[idx] = { orig: matched, simple: currentDict[key] };
                 return ph;
             });
         });
@@ -308,12 +306,10 @@
         const output = document.getElementById('output');
         output.innerHTML = result;
         output.classList.add('show');
-        
         updateStats();
 
         document.getElementById('copy-btn').classList.add('show');
         document.getElementById('copy-btn').innerText = "COPY RESULT";
-        
         window.scrollTo({ top: output.offsetTop - 20, behavior: 'smooth' });
     }
 
@@ -344,8 +340,22 @@
         });
     }
 
-    function showModal() { document.getElementById('modal').style.display = 'flex'; }
-    function hideModal() { document.getElementById('modal').style.display = 'none'; }
+    function showModal() { document.getElementById('homeModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('homeModal').style.display = 'none'; }
+
+    async function loadFooter() {
+        try {
+            const response = await fetch('footer.json');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.footerText) document.getElementById('footer-text').innerText = data.footerText;
+                if (data.privacyLink) document.getElementById('privacy-link').href = data.privacyLink;
+                if (data.copyright) document.getElementById('copyright').innerText = data.copyright;
+                if (data.kofiText) document.getElementById('kofi-link').innerText = data.kofiText;
+            }
+        } catch (e) { console.log("Using internal footer logic."); }
+    }
+    loadFooter();
 </script>
 
 </body>
